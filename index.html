@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>BPM → Frames PRO</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Inter',sans-serif;
+
+    min-height:100vh;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    padding:20px;
+
+    overflow-x:hidden;
+
+    background:
+    radial-gradient(circle at top left,#7c3aed 0%,transparent 35%),
+    radial-gradient(circle at bottom right,#2563eb 0%,transparent 35%),
+    #09090f;
+
+    color:white;
+}
+
+.card{
+
+    width:100%;
+    max-width:620px;
+
+    background:rgba(255,255,255,0.06);
+
+    backdrop-filter:blur(24px);
+
+    border:1px solid rgba(255,255,255,0.08);
+
+    border-radius:32px;
+
+    padding:30px;
+
+    box-shadow:
+    0 20px 60px rgba(0,0,0,0.35),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+
+}
+
+.title{
+
+    font-size:clamp(2rem,7vw,3.4rem);
+
+    font-weight:800;
+
+    letter-spacing:-2px;
+
+    margin-bottom:8px;
+}
+
+.subtitle{
+
+    color:rgba(255,255,255,0.68);
+
+    line-height:1.6;
+
+    margin-bottom:28px;
+}
+
+.grid{
+
+    display:grid;
+
+    gap:18px;
+}
+
+.field label{
+
+    display:block;
+
+    margin-bottom:8px;
+
+    color:rgba(255,255,255,0.7);
+
+    font-size:0.95rem;
+}
+
+.field input,
+.field select{
+
+    width:100%;
+
+    padding:16px 18px;
+
+    border:none;
+    outline:none;
+
+    border-radius:18px;
+
+    background:rgba(255,255,255,0.08);
+
+    color:white;
+
+    font-size:1rem;
+
+    transition:0.2s;
+}
+
+.field input:focus,
+.field select:focus{
+
+    background:rgba(255,255,255,0.12);
+
+    transform:translateY(-1px);
+}
+
+.result{
+
+    margin-top:28px;
+
+    padding:26px;
+
+    border-radius:26px;
+
+    background:
+    linear-gradient(
+        135deg,
+        rgba(124,58,237,0.24),
+        rgba(37,99,235,0.24)
+    );
+
+    border:1px solid rgba(255,255,255,0.08);
+}
+
+.big{
+
+    font-size:clamp(2.5rem,10vw,5rem);
+
+    font-weight:800;
+
+    line-height:1;
+
+    margin-bottom:10px;
+}
+
+.small{
+
+    color:rgba(255,255,255,0.72);
+
+    line-height:1.6;
+}
+
+.timeline{
+
+    margin-top:24px;
+
+    display:flex;
+
+    gap:12px;
+
+    overflow:auto;
+
+    padding-bottom:4px;
+}
+
+.beat{
+
+    min-width:76px;
+
+    padding:14px;
+
+    border-radius:16px;
+
+    background:rgba(255,255,255,0.06);
+
+    border:1px solid rgba(255,255,255,0.06);
+
+    text-align:center;
+}
+
+.num{
+
+    font-size:0.75rem;
+
+    color:rgba(255,255,255,0.5);
+
+    margin-bottom:8px;
+}
+
+.frame{
+
+    font-size:1.2rem;
+
+    font-weight:700;
+}
+
+.loopInfo{
+
+    margin-top:22px;
+
+    padding:18px;
+
+    border-radius:18px;
+
+    background:rgba(255,255,255,0.05);
+
+    border:1px solid rgba(255,255,255,0.06);
+
+    text-align:center;
+}
+
+.loopMain{
+
+    font-size:1.25rem;
+
+    font-weight:700;
+
+    margin-bottom:4px;
+}
+
+.loopSub{
+
+    color:rgba(255,255,255,0.55);
+
+    font-size:0.92rem;
+}
+
+/* TAP SECTION */
+
+.tapSection{
+
+    margin-top:28px;
+}
+
+.tapBpmDisplay{
+
+    margin-bottom:18px;
+
+    padding:18px;
+
+    border-radius:22px;
+
+    background:rgba(255,255,255,0.05);
+
+    border:1px solid rgba(255,255,255,0.06);
+
+    text-align:center;
+}
+
+.tapBpmValue{
+
+    font-size:2.2rem;
+
+    font-weight:800;
+
+    line-height:1;
+
+    margin-bottom:6px;
+}
+
+.tapBpmLabel{
+
+    color:rgba(255,255,255,0.55);
+
+    font-size:0.9rem;
+}
+
+.tapPad{
+
+    position:relative;
+
+    width:100%;
+    height:170px;
+
+    border:none;
+
+    border-radius:28px;
+
+    background:
+    linear-gradient(
+        135deg,
+        rgba(124,58,237,0.35),
+        rgba(37,99,235,0.35)
+    );
+
+    color:white;
+
+    cursor:pointer;
+
+    overflow:hidden;
+
+    transition:0.12s ease;
+}
+
+.tapPad:hover{
+
+    transform:scale(1.01);
+}
+
+.tapPad.active{
+
+    transform:scale(0.98);
+
+    box-shadow:
+    0 0 40px rgba(124,58,237,0.5);
+}
+
+.tapGlow{
+
+    position:absolute;
+
+    inset:0;
+
+    background:
+    radial-gradient(circle,
+    rgba(255,255,255,0.18),
+    transparent 60%);
+
+    opacity:0;
+
+    transition:0.15s;
+}
+
+.tapPad.active .tapGlow{
+
+    opacity:1;
+}
+
+.tapText{
+
+    position:relative;
+
+    z-index:2;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+    height:100%;
+}
+
+.tapMain{
+
+    font-size:2rem;
+
+    font-weight:800;
+
+    margin-bottom:6px;
+}
+
+.tapSub{
+
+    color:rgba(255,255,255,0.7);
+
+    font-size:0.95rem;
+}
+
+.footer{
+
+    margin-top:26px;
+
+    text-align:center;
+
+    color:rgba(255,255,255,0.42);
+
+    font-size:0.85rem;
+
+    line-height:1.8;
+}
+
+.footer a{
+
+    color:white;
+
+    text-decoration:none;
+
+    font-weight:700;
+}
+
+.footer a:hover{
+
+    opacity:0.8;
+}
+
+@media(max-width:600px){
+
+    .card{
+
+        padding:22px;
+    }
+
+    .tapPad{
+
+        height:150px;
+    }
+
+}
+
+</style>
+</head>
+<body>
+
+<div class="card">
+
+    <div class="title">
+        BPM → Frames
+    </div>
+
+    <div class="subtitle">
+        Calculadora musical para Blender, Motion Graphics,
+        Resolume y VJ loops sincronizados al beat.
+    </div>
+
+    <div class="grid">
+
+        <div class="field">
+            <label>BPM</label>
+            <input type="number" id="bpm" value="118">
+        </div>
+
+        <div class="field">
+            <label>FPS</label>
+            <input type="number" id="fps" value="24">
+        </div>
+
+        <div class="field">
+            <label>Figura Musical</label>
+
+            <select id="division">
+
+                <option value="1">
+                    Negra (Beat)
+                </option>
+
+                <option value="0.5">
+                    Corchea (1/2 Beat)
+                </option>
+
+                <option value="0.25">
+                    Semicorchea (1/4 Beat)
+                </option>
+
+                <option value="2">
+                    Blanca (2 Beats)
+                </option>
+
+                <option value="4">
+                    Compás Completo
+                </option>
+
+            </select>
+        </div>
+
+        <div class="field">
+
+            <label>Duración del Loop</label>
+
+            <select id="bars">
+
+                <option value="1">1 Compás</option>
+                <option value="2">2 Compases</option>
+                <option value="4">4 Compases</option>
+                <option value="8" selected>8 Compases</option>
+                <option value="16">16 Compases</option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+    <div class="result">
+
+        <div class="big" id="framesResult">
+            12.20f
+        </div>
+
+        <div class="small" id="details">
+            Cada beat ocurre aproximadamente cada 12.20 frames.
+        </div>
+
+        <div class="timeline" id="timeline"></div>
+
+        <div class="loopInfo">
+
+            <div class="loopMain" id="loopMain">
+                In: 1 • Out: 390
+            </div>
+
+            <div class="loopSub" id="loopSub">
+                Loop perfecto de 8 compases
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- TAP TEMPO -->
+
+    <div class="tapSection">
+
+        <div class="tapBpmDisplay">
+
+            <div class="tapBpmValue" id="tapBpmValue">
+                118 BPM
+            </div>
+
+            <div class="tapBpmLabel">
+                Tap detected tempo
+            </div>
+
+        </div>
+
+        <button class="tapPad" id="tapPad">
+
+            <div class="tapGlow"></div>
+
+            <div class="tapText">
+
+                <div class="tapMain">
+                    TAP TEMPO
+                </div>
+
+                <div class="tapSub">
+                    SPACE • CLICK • TOUCH
+                </div>
+
+            </div>
+
+        </button>
+
+    </div>
+
+    <div class="footer">
+
+        Made for motion designers & VJs ✨
+
+        <br><br>
+
+        Created by
+        <a href="https://instagram.com/davidhriosh" target="_blank">
+            @davidhriosh
+        </a>
+        using ChatGPT
+
+    </div>
+
+</div>
+
+<script>
+
+// ======================
+// MAIN CALCULATION
+// ======================
+
+function calculate(){
+
+    const bpm = parseFloat(
+        document.getElementById("bpm").value
+    );
+
+    const fps = parseFloat(
+        document.getElementById("fps").value
+    );
+
+    const division = parseFloat(
+        document.getElementById("division").value
+    );
+
+    const bars = parseFloat(
+        document.getElementById("bars").value
+    );
+
+    if(!bpm || !fps) return;
+
+    document.getElementById("tapBpmValue").innerHTML =
+        `${bpm.toFixed(1)} BPM`;
+
+    const secondsPerBeat = 60 / bpm;
+
+    const framesPerBeat = secondsPerBeat * fps;
+
+    const finalFrames = framesPerBeat * division;
+
+    document.getElementById("framesResult").innerHTML =
+        finalFrames.toFixed(2) + "f";
+
+    let label = "";
+
+    switch(division){
+
+        case 0.25:
+            label = "semicorchea";
+            break;
+
+        case 0.5:
+            label = "corchea";
+            break;
+
+        case 1:
+            label = "beat";
+            break;
+
+        case 2:
+            label = "blanca";
+            break;
+
+        case 4:
+            label = "compás";
+            break;
+
+    }
+
+    document.getElementById("details").innerHTML =
+        `Cada ${label} ocurre aproximadamente cada <b>${finalFrames.toFixed(2)} frames</b>.`;
+
+    // TIMELINE
+
+    const timeline = document.getElementById("timeline");
+
+    timeline.innerHTML = "";
+
+    let current = 0;
+
+    for(let i = 1; i <= 8; i++){
+
+        const div = document.createElement("div");
+
+        div.className = "beat";
+
+        div.innerHTML = `
+            <div class="num">${label} ${i}</div>
+            <div class="frame">${Math.round(current)}</div>
+        `;
+
+        timeline.appendChild(div);
+
+        current += finalFrames;
+    }
+
+    // LOOP
+
+    const framesPerBar = framesPerBeat * 4;
+
+    const totalLoopFrames =
+        Math.round(framesPerBar * bars);
+
+    document.getElementById("loopMain").innerHTML =
+        `In: 1 • Out: ${totalLoopFrames}`;
+
+    document.getElementById("loopSub").innerHTML =
+        `Loop perfecto de ${bars} compases`;
+
+}
+
+// ======================
+// TAP TEMPO
+// ======================
+
+let taps = [];
+let lastTap = 0;
+
+function tapTempo(){
+
+    const now = Date.now();
+
+    // Reset if too much time passed
+
+    if(now - lastTap > 2000){
+
+        taps = [];
+    }
+
+    lastTap = now;
+
+    taps.push(now);
+
+    // Keep only recent taps
+
+    if(taps.length > 8){
+
+        taps.shift();
+    }
+
+    // Need at least 2 taps
+
+    if(taps.length >= 2){
+
+        let intervals = [];
+
+        for(let i = 1; i < taps.length; i++){
+
+            intervals.push(
+                taps[i] - taps[i - 1]
+            );
+
+        }
+
+        // Average interval
+
+        const avg =
+            intervals.reduce((a,b)=>a+b,0)
+            / intervals.length;
+
+        const bpm = 60000 / avg;
+
+        // Clamp BPM
+
+        if(bpm >= 40 && bpm <= 300){
+
+            document.getElementById("bpm").value =
+                bpm.toFixed(1);
+
+            calculate();
+        }
+
+    }
+
+    pulseTapPad();
+
+}
+
+// ======================
+// VISUAL PULSE
+// ======================
+
+function pulseTapPad(){
+
+    const pad =
+        document.getElementById("tapPad");
+
+    pad.classList.add("active");
+
+    setTimeout(()=>{
+
+        pad.classList.remove("active");
+
+    },120);
+
+}
+
+// ======================
+// EVENTS
+// ======================
+
+document.getElementById("bpm")
+.addEventListener("input",calculate);
+
+document.getElementById("fps")
+.addEventListener("input",calculate);
+
+document.getElementById("division")
+.addEventListener("change",calculate);
+
+document.getElementById("bars")
+.addEventListener("change",calculate);
+
+// Tap button
+
+document.getElementById("tapPad")
+.addEventListener("click",tapTempo);
+
+// Spacebar
+
+document.addEventListener("keydown",(e)=>{
+
+    if(e.code === "Space"){
+
+        e.preventDefault();
+
+        tapTempo();
+    }
+
+});
+
+// Touch mobile
+
+document.getElementById("tapPad")
+.addEventListener("touchstart",(e)=>{
+
+    e.preventDefault();
+
+    tapTempo();
+
+},{passive:false});
+
+// Init
+
+calculate();
+
+</script>
+
+</body>
+</html>
